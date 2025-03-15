@@ -1,0 +1,1 @@
+console.error("Error: SyntaxError: Expected ',' or '}' after property value in JSON at position 327 (line 10 column 5) while parsing json file /home/x/Desktop/mediasoup-server/package.json");

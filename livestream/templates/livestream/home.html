@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profiles</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto py-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {% for user in users %}
+        <a href="{% url "profile_view" user.id %}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            <img class="w-full h-32 object-cover" src="http://127.0.0.1:8000{{user.avatar.url}}" alt="User Avatar">
+            <div class="p-4">
+            <h2 class="text-xl font-semibold text-gray-800">{{user.username}}</h2>
+            </div>
+        </a>
+       {% endfor %}
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyStream Live</title>
+    <!-- Include Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow">
+      <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <img src="https://via.placeholder.com/40" alt="Logo" class="rounded-full" />
+          <h1 class="text-xl font-bold">MyStream</h1>
+        </div>
+        <nav>
+          <ul class="flex space-x-4">
+            <li>
+              <a href="#" class="text-gray-600 hover:text-gray-900">Home</a>
+            </li>
+            <li>
+              <a href="#" class="text-gray-600 hover:text-gray-900">Live</a>
+            </li>
+            <li>
+              <a href="#" class="text-gray-600 hover:text-gray-900">Videos</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row">
+      <!-- Video Player Section -->
+      <section class="lg:w-2/3 w-full">
+        <div class="bg-black aspect-video rounded-lg overflow-hidden">
+          <video class="w-full h-full" controls autoplay>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div class="mt-4">
+          <h2 class="text-2xl font-semibold">Live Stream Title</h2>
+          <p class="text-gray-600">Streamer Name · 1.2K viewers</p>
+        </div>
+        <div class="mt-6">
+          <p class="text-gray-700">
+            This is a brief description of the live stream. Add any details here to engage with your audience.
+          </p>
+        </div>
+      </section>
+
+      <!-- Chat Sidebar Section -->
+      <aside class="lg:w-1/3 w-full lg:pl-8 mt-8 lg:mt-0">
+        <div class="bg-white rounded-lg shadow p-4 h-full flex flex-col">
+          <h3 class="text-lg font-semibold mb-4">Live Chat</h3>
+          <!-- Chat Messages -->
+          <div id="chatMessages" class="flex-1 overflow-y-auto space-y-2">
+            <div class="p-2 bg-gray-100 rounded">
+              <span class="font-bold">User1:</span> Hello everyone!
+            </div>
+            <div class="p-2 bg-blue-100 rounded">
+              <span class="font-bold">Streamer:</span> Welcome to the stream!
+            </div>
+            <div class="p-2 bg-gray-100 rounded">
+              <span class="font-bold">User2:</span> Great stream!
+            </div>
+          </div>
+          <!-- Chat Input -->
+          <div class="mt-4">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+            />
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-8">
+      <div class="container mx-auto px-4 py-4 text-center text-gray-600">
+        © 2025 MyStream. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>

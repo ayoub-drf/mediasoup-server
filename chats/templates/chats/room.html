@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block css %}
+<link href="{% static "chats/css/main.css" %}" rel="stylesheet">
+{% endblock css %}
+
+
+{% block content %}
+
+<div class="flex h-screen">
+      <aside class="w-1/5 bg-gray-800 text-white p-4">
+        <h2 class="text-2xl font-bold mb-4">Join Live Channels</h2>
+        <ul class="space-y-2">
+          {% for channel in channels %}
+            <li>
+              <a href="{% url 'room' channel.name %}" class="block px-4 py-2 rounded hover:bg-gray-700">{{channel.name}}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        
+
+        <!-- Users in General Room (with online avatars using external images) -->
+        <div class="mt-2">
+          <h3 class="text-xl font-semibold mb-4">Users inside this 
+         # <span class="text-[#2196F3] font-extrabold">{{room_name|upper}}</span>
+            
+          </h3>
+          <ul class="space-y-4">
+            <li class="flex items-center space-x-3">
+              <div class="w-10 h-10">
+                <img class="w-full h-full rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="John Doe">
+              </div>
+              <span>John Doe</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <div class="w-10 h-10">
+                <img class="w-full h-full rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Jane Smith">
+              </div>
+              <span>Jane Smith</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <div class="w-10 h-10">
+                <img class="w-full h-full rounded-full" src="https://randomuser.me/api/portraits/men/45.jpg" alt="Mark Lee">
+              </div>
+              <span>Mark Lee (Away)</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <div class="w-10 h-10">
+                <img class="w-full h-full rounded-full" src="https://randomuser.me/api/portraits/women/55.jpg" alt="Sarah Kim">
+              </div>
+              <span>Sarah Kim</span>
+            </li>
+          </ul>
+        </div>
+      </aside>
+  
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col bg-gray-100">
+      <!-- Header with Channel Name -->
+      <header class="bg-gray-800 text-white p-3 flex items-center justify-between">
+        <h1 class="text-xl font-bold"># general</h1>
+        <div class="flex space-x-3">
+            <img class="w-12 h-12 rounded-[50%]" src="http://127.0.0.1:8000{{request.user.avatar.url}}" alt="">
+        </div>
+      </header>
+  
+      <!-- Video Grid with Full-Overlay Avatar & Background -->
+      <main class="flex-1 p-4 overflow-auto">
+        <div id="profile-container-display" class="hidden px-[30px] rounded-2xl w-full min-h-[400px] mb-3">
+            
+        </div>
+
+        {% comment %} <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- Video Tile 1 -->
+          <div id="profile-card" class="relative cursor-pointer rounded-lg overflow-hidden h-40 bg-black">
+            <!-- Full background image covering the tile -->
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/400x300/444444/CCCCCC?text=Background');"></div>
+            <!-- Full video element -->
+            <video class="w-full h-full object-cover" src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop></video>
+            <!-- Full overlay (simulate audio-only mode) with centered avatar -->
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
+              <img class="w-20 h-20 rounded-full border border-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar">
+              <div id="username" class="absolute bottom-1 left-[50%] transform -translate-x-1/2 text-[#2195F3] font-bold text-2xl">james</div>
+            </div>
+          </div>
+          <!-- Video Tile 2 -->
+          <div id="profile-card" class="relative cursor-pointer rounded-lg overflow-hidden h-40 bg-black">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/400x300/444444/CCCCCC?text=Background');"></div>
+            <video class="w-full h-full object-cover" src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop></video>
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
+              <img class="w-20 h-20 rounded-full border border-white" src="https://randomuser.me/api/portraits/women/44.jpg" alt="User Avatar">
+              <div id="username" class="absolute bottom-1 left-[50%] transform -translate-x-1/2 text-[#2195F3] font-bold text-2xl">dexter</div>
+            </div>
+          </div>
+          <!-- Video Tile 3 -->
+          <div id="profile-card" class="relative cursor-pointer rounded-lg overflow-hidden h-40 bg-black">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/400x300/444444/CCCCCC?text=Background');"></div>
+            <video class="w-full h-full object-cover" src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop></video>
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
+              <img class="w-20 h-20 rounded-full border border-white" src="https://randomuser.me/api/portraits/men/45.jpg" alt="User Avatar">
+              <div id="username" class="absolute bottom-1 left-[50%] transform -translate-x-1/2 text-[#2195F3] font-bold text-2xl">maria</div>
+            </div>
+          </div>
+          <!-- Video Tile 4 -->
+          <div id="profile-card" class="relative cursor-pointer rounded-lg overflow-hidden h-40 bg-black">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/400x300/444444/CCCCCC?text=Background');"></div>
+            <video class="w-full h-full object-cover" src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop></video>
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
+                <img class="w-20 h-20 rounded-full border border-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar">
+              <div id="username" class="absolute bottom-1 left-[50%] transform -translate-x-1/2 text-[#2195F3] font-bold text-2xl">stephen</div>
+            </div>
+          </div>
+
+        </div> {% endcomment %}
+
+        <div id="video-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+
+          <video id="local-video" class="w-full h-auto rounded-lg shadow-lg border-2 border-gray-300" muted autoplay controls></video>
+      
+        </div>
+      
+
+      </main>
+  
+      <!-- Footer: Control Buttons -->
+      <footer class="bg-gray-900 text-white p-4 flex justify-center space-x-6">
+        <button class="flex flex-col items-center hover:text-green-400 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span class="text-xs mt-1">Mute</span>
+        </button>
+        <button class="flex flex-col items-center hover:text-green-400 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A2 2 0 0122 9.618v4.764a2 2 0 01-2.447 1.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" />
+          </svg>
+          <span class="text-xs mt-1">Video</span>
+        </button>
+        <button class="flex flex-col items-center hover:text-green-400 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 12l4-4 4 4M12 8v8" />
+          </svg>
+          <span class="text-xs mt-1">Share</span>
+        </button>
+        <button class="flex flex-col items-center hover:text-green-400 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 1.343 3 3s-1.343 3-3 3S9 12.657 9 11s1.343-3 3-3zM4.293 6.293a1 1 0 011.414 0L7 7.586l1.293-1.293a1 1 0 111.414 1.414L8.414 9l1.293 1.293a1 1 0 01-1.414 1.414L7 10.414l-1.293 1.293a1 1 0 01-1.414-1.414L5.586 9 4.293 7.707a1 1 0 010-1.414z" />
+          </svg>
+          <span class="text-xs mt-1">Settings</span>
+        </button>
+      </footer>
+      {{ room_name|json_script:"room-name" }}
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static "chats/js/chats.bundle.js" %}"></script>
+{% endblock js %}

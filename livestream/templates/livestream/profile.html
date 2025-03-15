@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    You - {{user.username}}
+{% endblock title %}
+{% block content %}
+<link href="{% static "livestream/css/livestream.css" %}" rel="stylesheet">
+<div class="flex flex-col md:flex-row min-h-screen py-3">
+    <!-- Sidebar -->
+    <div class="w-full md:w-1/4 bg-white p-6 flex flex-col items-center">
+        <!-- User Avatar -->
+        <img class="w-32 h-32 rounded-full object-cover" src="http://127.0.0.1:8000{{user.avatar.url}}" alt="User Avatar">
+        <!-- Username -->
+        <p class="mt-4 mb-4 font-bold text-center text-2xl text-blue-500 uppercase">{{user.username}}</p>
+
+        {% if request.user == user %}        
+            <!-- Live Stream Controls -->
+            <button id="start-livestream" class="bg-green-600 mb-4 text-white py-2 px-4 rounded-full font-bold text-lg w-full">
+                Start Live Stream
+            </button>
+            <button class="bg-red-600 text-white py-2 px-4 rounded-full font-bold text-lg w-full">
+                End Live Stream
+            </button>
+            <!-- Share Screen Button -->
+            <button id="share-screen" class="bg-blue-600 mt-4 text-white py-2 px-4 rounded-full font-bold text-lg w-full">
+                Share Screen
+            </button>
+        
+        {% else %}
+            <button id="join-livestream" class="bg-blue-600 mt-4 text-white py-2 px-4 rounded-full font-bold text-lg w-full">
+            Join Live Stream
+            </button>
+        {% endif %}
+
+        <!-- Watcher Count -->
+        <div class="mt-4 text-center">
+            <p class="text-gray-700">Watchers:</p>
+            <p id="watchers-count" class="text-2xl font-bold text-gray-900">123</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col md:flex-row">
+        <!-- Video Section -->
+        <div id="video-container" class="flex-1 bg-black flex items-center justify-center relative">
+
+        </div>
+
+        <!-- Chat Section -->
+        <div class="w-full md:w-1/3 bg-white p-6 flex flex-col">
+            <h2 class="text-xl font-bold mb-4">Live Chat</h2>
+            <div id="chatMessages" class="flex-1 overflow-y-auto mb-4">
+                <!-- Example Message -->
+                <div class="mb-2">
+                    <p class="text-sm text-gray-600">User1:</p>
+                    <p class="text-md text-gray-900">Hello, everyone!</p>
+                </div>
+                <!-- More messages -->
+            </div>
+            <!-- Message Input -->
+            <div class="mt-auto">
+                <input type="text" id="chatInput" class="w-full border border-gray-300 rounded-full py-2 px-4" placeholder="Type your message...">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script>
+    const publisherId = '{{user.id}}';
+    console.log('publisherId', publisherId)
+</script>
+<script src="{% static "livestream/js/bundle.js" %}"></script>
+{% endblock js %}

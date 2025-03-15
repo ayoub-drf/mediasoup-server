@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+Index
+{% endblock title %}
+
+{% block css %}
+<link href="{% static "chats/css/main.css" %}" rel="stylesheet">
+{% endblock css %}
+
+
+{% block content %}
+
+<div class="flex h-screen">
+    <!-- Left Sidebar (Channels and Users in General Room) -->
+    <aside class="w-1/5 bg-gray-800 text-white p-4">
+      <h2 class="text-2xl font-bold mb-4">Join Live Channels</h2>
+      <ul class="space-y-2">
+        {% for channel in channels %}
+          <li>
+            <a href="{% url 'room' channel.name %}" class="block px-4 py-2 rounded hover:bg-gray-700">{{channel.name}}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+  
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col bg-gray-100">
+      <!-- Header with Channel Name -->
+      <header class="bg-gray-800 text-white p-3 flex items-center justify-between">
+        <h1 class="text-xl font-bold">You
+        <span class="text-[#2196F3] font-extrabold">{{request.user.username}}</span>
+        </h1>
+        <div class="flex space-x-3">
+            <img class="w-12 h-12 rounded-[50%]" src="http://127.0.0.1:8000{{request.user.avatar.url}}" alt="">
+        </div>
+      </header>
+  
+      <!-- Video Grid with Full-Overlay Avatar & Background -->
+      <main class="flex-1 relative overflow-hidden">
+        <!-- Image with a background -->
+        <img class="w-full object-cover" src="https://c4.wallpaperflare.com/wallpaper/323/60/896/3d-2560x1440-desktop-wallpaper-preview.jpg" alt="">
+      
+        <!-- Text overlay -->
+        <h1 class="absolute inset-0 flex items-center justify-center text-white text-center p-6 font-extrabold text-[36px] md:text-[48px] lg:text-[60px] text-shadow-md">
+          <i class="fa fa-arrow-left mr-4 text-[88px] text-[#2196F3] transform rotate-18"></i> Join live stream channels
+        </h1>
+      </main>
+      
+      
+      
+      
+  
+      {% comment %} <footer class="bg-gray-900 text-white p-4 flex justify-center space-x-6">
+          <h1 class="p-4">
+            All right received to webrtc
+          </h1>
+      </footer> {% endcomment %}
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static "chats/js/chats.js" %}"></script>
+{% endblock js %}
