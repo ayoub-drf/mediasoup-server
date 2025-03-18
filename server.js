@@ -72,6 +72,10 @@ const peers = io.of("/livestream");
 peers.on("connection", async (socket) => {
   console.log("New client connected:", socket.id);
 
+  socket.on('pageReloaded', async () => {
+    console.log('consumers : ', consumers)
+  })
+
   socket.emit("connection-success", {
     socketId: socket.id,
   });
@@ -144,10 +148,17 @@ peers.on("connection", async (socket) => {
         } else {
           producer.set(publisherId, new Map([[mediaType, newProducer]]));
         }
-
         newProducer.on("transportclose", () => {
-          console.log("transport for this producer closed ");
           newProducer.close();
+          if (producer.has(publisherId)) {
+            console.log("producer.has(publisherId)")
+            producer.delete(publisherId)
+          }
+          console.log("transport for this producer closed ", publisherId);
+
+          console.log("producer : ", producer)
+          // producer.delete(publisherId)
+          // console.log(consumers.has(publisherId))
         });
 
         callback({
@@ -164,70 +175,89 @@ peers.on("connection", async (socket) => {
     await consumerTransport.connect({ dtlsParameters });
   });
 
-  socket.on("consume", async ({ rtpCapabilities, publisherId }, callback) => {
-    try {
-      const targetProducer = producer.get(publisherId);
-      if (!targetProducer) {
-        return callback({ error: "No producers found for this publisher." });
-      }
-      for (const [mediaType, prod] of targetProducer.entries()) {
-        if (
-          router.canConsume({
-            producerId: prod.id,
-            rtpCapabilities,
-          })
-        ) {
-          const consumer = await consumerTransport.consume({
-            producerId: prod.id,
-            rtpCapabilities,
-            paused: false,
-          });
-          consumer.on("transportclose", () => {
-            console.log("transport close from consumer");
-          });
-          consumer.on("producerclose", () => {
-            console.log("producer of consumer closed");
-            consumer.close();
-          });
+  socket.on(
+    "consume",
+    async ({ rtpCapabilities, publisherId, loggedInUserId }, callback) => {
+      try {
+        const targetProducer = producer.get(publisherId);
+        if (!targetProducer) {
+          return callback({ error: "No producers found for this publisher." });
+        }
 
-          if (consumers.has(publisherId)) {
-            consumers.get(publisherId).set(mediaType, consumer);
-          } else {
-            consumers.set(publisherId, new Map([[mediaType, consumer]]));
+        for (const [mediaType, prod] of targetProducer.entries()) {
+          if (router.canConsume({ producerId: prod.id, rtpCapabilities })) {
+            const consumer = await consumerTransport.consume({
+              producerId: prod.id,
+              rtpCapabilities,
+              paused: false,
+            });
+
+            consumer.on("transportclose", () => {
+              console.log("transport close from consumer");
+            });
+
+            consumer.on("producerclose", () => {
+              console.log("producer of consumer closed", publisherId);
+              consumer.close();
+              if (consumers.has(publisherId)) {
+                console.log("consumers.has(publisherId)")
+                consumers.delete(publisherId)
+              }
+              console.log("consumers : ", consumers)
+            });
+
+            if (consumers.has(publisherId)) {
+              consumers.get(publisherId).set(mediaType, consumer);
+            } else {
+              consumers.set(publisherId, new Map([[mediaType, consumer]]));
+            }
           }
         }
-      }
 
-      const params = [];
+        const targetConsumer = consumers.get(publisherId);
 
-      for (const [publisherId, mediaMap] of consumers) {
+        const params = [];
 
-        for (const [mediaType, consumer] of mediaMap) {
-          
-          params.push({
-            id: consumer.id,
-            producerId: consumer.producerId,
-            kind: consumer.kind,
-            rtpParameters: consumer.rtpParameters,
-            type: consumer.type,
-            mediaType,
-          });
-
+        for (const [mediaType, cons] of targetConsumer.entries()) {
+            params.push({
+              id: cons.id,
+              producerId: cons.producerId,
+              kind: cons.kind,
+              rtpParameters: cons.rtpParameters,
+              type: cons.type,
+              mediaType,
+            });
         }
+
+        console.log('params', params)
+
+        //  for (const [loggedInUserId, mediaMap] of consumers) {
+
+        //   for (const [mediaType, consumer] of mediaMap) {
+
+        //     params.push({
+        //       id: consumer.id,
+        //       producerId: consumer.producerId,
+        //       kind: consumer.kind,
+        //       rtpParameters: consumer.rtpParameters,
+        //       type: consumer.type,
+        //       mediaType,
+        //     });
+
+        //   }
+        // }
+
+        callback({ params });
+      } catch (error) {
+        console.log(error.message);
+        callback({
+          params: {
+            error: error,
+          },
+        });
       }
-
-      
-      callback({ params });
-
-    } catch (error) {
-      console.log(error.message);
-      callback({
-        params: {
-          error: error,
-        },
-      });
     }
-  });
+  );
 
   // socket.on('consumer-resume', async () => {
   //   console.log('consumer resume')

@@ -50,7 +50,7 @@ async function startLivestreaming() {
 }
 
 async function getUserMedia() {
-  if (type === 'livestream') {
+  if (type === "livestream") {
     navigator.getUserMedia(
       {
         audio: false,
@@ -77,27 +77,34 @@ async function getUserMedia() {
         video: true,
       });
 
-      await streamSuccess(stream)
+      await streamSuccess(stream);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   }
-  
-};
+}
 
 async function streamSuccess(stream) {
   // localVideo.srcObject = stream;
-  const video = document.createElement('video')
+  const video = document.createElement("video");
   video.controls = true;
   video.srcObject = stream;
-  if (videoContainer.querySelectorAll('video').length <= 0) {
-    video.classList.add('w-full', 'h-full', 'object-contain');
+  if (videoContainer.querySelectorAll("video").length <= 0) {
+    video.classList.add("w-full", "h-full", "object-contain");
   } else {
-    video.classList.add('w-[390px]', 'top-0', 'left-0', 'border-red-700', 'border-solid', 'border-2', 'object-contain', 'absolute');
+    video.classList.add(
+      "w-[390px]",
+      "top-0",
+      "left-0",
+      "border-red-700",
+      "border-solid",
+      "border-2",
+      "object-contain",
+      "absolute"
+    );
   }
-  videoContainer.append(video)
-  
+  videoContainer.append(video);
+
   video.play();
   const track = stream.getVideoTracks()[0];
   videoParams = {
@@ -141,62 +148,63 @@ async function createDevice() {
 }
 
 function createSendTransport() {
-  socket.emit("createWebRtcTransport", { sender: true, publisherId: publisherId, mediaType: type }, async ({ params }) => {
-    if (params.error) {
-      console.log(params.error);
-      return;
-    }
+  socket.emit(
+    "createWebRtcTransport",
+    { sender: true, publisherId: publisherId, mediaType: type },
+    async ({ params }) => {
+      if (params.error) {
+        console.log(params.error);
+        return;
+      }
 
-    producerTransport = device.createSendTransport(params);
+      producerTransport = device.createSendTransport(params);
 
-    producerTransport.on(
-      "connect",
-      async ({ dtlsParameters }, callback, errback) => {
-        console.log("connect", dtlsParameters);
+      producerTransport.on(
+        "connect",
+        async ({ dtlsParameters }, callback, errback) => {
+          console.log("connect", dtlsParameters);
+          try {
+            // Signal local DTLS parameters to the server side transport
+            // see server's socket.on('transport-connect', ...)
+            await socket.emit("transport-connect", {
+              dtlsParameters,
+              publisherId: publisherId,
+              mediaType: type,
+            });
+
+            // Tell the transport that parameters were transmitted.
+            callback();
+          } catch (error) {
+            errback(error);
+          }
+        }
+      );
+
+      producerTransport.on("produce", async (parameters, callback, errback) => {
+        console.log("produce", parameters);
+
         try {
-          // Signal local DTLS parameters to the server side transport
-          // see server's socket.on('transport-connect', ...)
-          await socket.emit("transport-connect", {
-            dtlsParameters,
-            publisherId: publisherId,
-            mediaType: type
-          });
-
-          // Tell the transport that parameters were transmitted.
-          callback();
+          await socket.emit(
+            "transport-produce",
+            {
+              kind: parameters.kind,
+              rtpParameters: parameters.rtpParameters,
+              appData: parameters.appData,
+              publisherId: publisherId,
+              mediaType: type,
+            },
+            ({ id }) => {
+              callback({ id });
+            }
+          );
         } catch (error) {
           errback(error);
         }
-      }
-    );
+      });
 
-    producerTransport.on("produce", async (parameters, callback, errback) => {
-      console.log("produce", parameters);
-
-      try {
-
-        await socket.emit(
-          "transport-produce",
-          {
-            kind: parameters.kind,
-            rtpParameters: parameters.rtpParameters,
-            appData: parameters.appData,
-            publisherId: publisherId,
-            mediaType: type
-            
-          },
-          ({ id }) => {
-
-            callback({ id });
-          }
-        );
-      } catch (error) {
-        errback(error);
-      }
-    });
-
-    await connectSendTransport();
-  });
+      await connectSendTransport();
+    }
+  );
 }
 
 async function connectSendTransport() {
@@ -216,22 +224,22 @@ async function connectSendTransport() {
   type = null;
 }
 
+if (document.getElementById("share-screen")) {
+  document
+    .getElementById("share-screen")
+    .addEventListener("click", async (e) => {
+      type = "screen";
+      document.getElementById("share-screen").setAttribute("disabled", true);
 
-if (document.getElementById('share-screen')) {
-
-  document.getElementById('share-screen').addEventListener("click", async (e) => {
-    type = 'screen';
-    document.getElementById('share-screen').setAttribute("disabled", true);
-  
-    await startLivestreaming();
-  })
+      await startLivestreaming();
+    });
 }
 
 if (document.getElementById("start-livestream")) {
   document
-  .getElementById("start-livestream")
-  .addEventListener("click", async (e) => {
-      type = 'livestream';
+    .getElementById("start-livestream")
+    .addEventListener("click", async (e) => {
+      type = "livestream";
       document
         .getElementById("start-livestream")
         .setAttribute("disabled", true);
@@ -247,10 +255,9 @@ if (document.getElementById("start-livestream")) {
       // const data = await res.json()
 
       // console.log('data', data)
-      
     });
 
-    // type = null;
+  // type = null;
 }
 
 async function joinLivestreaming() {
@@ -297,7 +304,7 @@ async function createReceiveTransport() {
         }
       );
 
-      await connectRecvTransport()
+      await connectRecvTransport();
     }
   );
 }
@@ -306,13 +313,16 @@ const connectRecvTransport = async () => {
   console.log("connectRecvTransport");
   await socket.emit(
     "consume",
-    { rtpCapabilities: device.rtpCapabilities, publisherId: publisherId },
+    {
+      rtpCapabilities: device.rtpCapabilities,
+      publisherId: publisherId,
+      loggedInUserId: loggedInUserId,
+    },
     async ({ params }) => {
       // if (params.error) {
       //   console.log("Cannot Consume");
       //   return;
       // }
-
 
       params.forEach(async (consumerParams) => {
         const consumer = await consumerTransport.consume({
@@ -321,31 +331,55 @@ const connectRecvTransport = async () => {
           kind: consumerParams.kind,
           rtpParameters: consumerParams.rtpParameters,
         });
-      
-        console.log("XMLDocument", consumerParams.mediaType)
+
         const { track } = consumer;
-        const video = document.createElement('video')
+        console.log("track", track);
+        const video = document.createElement("video");
         video.controls = true;
         video.srcObject = new MediaStream([track]);
-        if (videoContainer.querySelectorAll('video').length <= 0) {
-          video.classList.add('w-full', 'h-full', 'object-contain');
+        if (videoContainer.querySelectorAll("video").length <= 0) {
+          video.classList.add("w-full", "h-full", "object-contain");
         } else {
-          video.classList.add('w-[390px]', 'top-0', 'left-0', 'border-red-700', 'border-solid', 'border-2', 'object-contain', 'absolute');
+          video.classList.add(
+            "w-[390px]",
+            "top-0",
+            "left-0",
+            "border-red-700",
+            "border-solid",
+            "border-2",
+            "object-contain",
+            "absolute"
+          );
         }
-        videoContainer.append(video)
-        
+        videoContainer.append(video);
+
         video.play();
       });
-
-
-
-
-      // localVideo.srcObject = new MediaStream([track]);
-      // socket.emit("consumer-resume");
     }
   );
+
+  // localVideo.srcObject = new MediaStream([track]);
+  // socket.emit("consumer-resume");
   type = null;
 };
+
+const pageReloaded =
+  (window.performance.navigation && window.performance.navigation.type === 1) ||
+  window.performance
+    .getEntriesByType("navigation")
+    .map((nav) => nav.type)
+    .includes("reload");
+
+if (pageReloaded) {
+  // Actions to perform on page reload
+  console.log("Page was reloaded");
+  // socket.emit("pageReloaded", () => {
+  //   console.log('sent it')
+  // });
+} else {
+  // Actions to perform on first page load
+  console.log("Page was loaded for the first time");
+}
 
 if (document.getElementById("join-livestream")) {
   document

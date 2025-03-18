@@ -71,7 +71,7 @@
 {% block js %}
 <script>
     const publisherId = '{{user.id}}';
-    console.log('publisherId', publisherId)
+    const loggedInUserId = '{{request.user.id}}';
 </script>
 <script src="{% static "livestream/js/bundle.js" %}"></script>
 {% endblock js %}
